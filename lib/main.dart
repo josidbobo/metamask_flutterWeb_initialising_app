@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import './metamask.dart';
+import 'metamask_provider.dart';
+import 'package:flutter_html/flutter_html.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (_) => MetaMaskProvider()),
+    ],
+    child:const MyApp(),
+  ),
+    );
+  
 }
 
 class MyApp extends StatelessWidget {
@@ -13,11 +22,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData.dark(),
-      home: const MyHomePage(title: 'MetaMask Project'),
-    );
+        debugShowCheckedModeBanner: false,
+        title: 'Flutter Demo',
+        theme: ThemeData.dark(),
+        initialRoute: '/home',
+        routes: {'/home': (context) => const MyHomePage(title: 'MetaMask Project')}
+        // home: const MyHomePage(title: 'MetaMask Project'),
+        );
   }
 }
 
@@ -31,13 +42,14 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+ 
+  Widget html = Html(
+    data:
+        """<img alt='Image on Top' src='https://www.bing.com/th?id=OIP.SUlBcO4pg4yIZxkWBjNWmgHaEx&w=311&h=200&c=8&rs=1&qlt=90&o=6&dpr=1.25&pid=3.1&rm=2'/>""",
+    onImageError: (exception, stackTrace) {
+      print(exception);
+    },
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -61,8 +73,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     } else if (provider.isConnected &&
                         !provider.isOperatingChain) {
                       text =
-                          'Wrong Chain. Please connect to ${MetaMaskProvider.operatingChain}';
-                    } else if (provider.isEnabled || provider.isNotConnected) {
+                          'Wrong Chain ${context.watch<MetaMaskProvider>().currentChain}. Please connect to Rinkeby!';
+                    } else if (provider.isEnabled) {
                       return Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -71,13 +83,20 @@ class _MyHomePageState extends State<MyHomePage> {
                             height: 8,
                           ),
                           OutlinedButton(
-                              onPressed: () async => context.read<MetaMaskProvider>().connect(),
-                              style: OutlinedButton.styleFrom(primary: Colors.white),
+                              onPressed: () =>
+                                  context.read<MetaMaskProvider>().connect(),
+                              style: OutlinedButton.styleFrom(
+                                  primary: Colors.white),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Image.network(
-                                      'https://i0.wp.com/kindalame.com/wp-content/uploads/2021/05/metamask-fox-wordmark-horizontal.png?fit=1549%2C480&ssl=1')
+                                  SizedBox(
+                                    width: 450,
+                                    child: Image.network(
+                                      'https://i0.wp.com/kindalame.com/wp-content/uploads/2021/05/metamask-fox-wordmark-horizontal.png?fit=1549%2C480&ssl=1',
+                                      fit: BoxFit.contain,
+                                    ),
+                                  )
                                 ],
                               )),
                         ],
@@ -102,11 +121,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 Positioned.fill(
                     child: IgnorePointer(
-                  child: Image.network(
-                    'https://encrypted-tbn0.gstatic.com/image?q=tbn:ANd9GcTicLAkhCzpJeu90V-4G00-B0on5aPGsj_wy9ETkR4g-BdAc8U2-TooYoiMcPcmcT48H7Y&usqp=CAU',
-                    fit: BoxFit.cover,
-                    opacity: const AlwaysStoppedAnimation(0.025),
-                  ),
+                  child: html,
                 )),
               ],
             ),

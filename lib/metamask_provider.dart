@@ -14,8 +14,6 @@ class MetaMaskProvider extends ChangeNotifier {
 
   bool get isConnected => isEnabled && currentAddress.isNotEmpty;
 
-  bool get isNotConnected => isEnabled && currentAddress == "";
-
   Future<void> connect() async {
     if (isEnabled) {
       final accounts = await ethereum!.requestAccount();
@@ -31,6 +29,7 @@ class MetaMaskProvider extends ChangeNotifier {
   clear() {
     currentAddress = "";
     currentChain = -1;
+    notifyListeners();
   }
 
   init() {
@@ -38,7 +37,7 @@ class MetaMaskProvider extends ChangeNotifier {
       ethereum!.onAccountsChanged((accounts) {
         clear();
       });
-      ethereum!.onChainChanged((accounts){
+      ethereum!.onChainChanged((accounts) {
         clear();
       });
     }
