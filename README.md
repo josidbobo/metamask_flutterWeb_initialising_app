@@ -1,6 +1,6 @@
-# metamask_web_app
+# A Flutter Web app that signs transactions using MetaMask on Chrome
 
-A new Flutter project.
+This flutter app uses flutter_web3 to sign and connect to an ethereum wallet(MetaMask) on the browser.
 
 ## Getting Started
 
